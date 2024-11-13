@@ -1,4 +1,70 @@
 # openstack-helm-playground
+**安裝Openstack的元件(前置作業)**
+---
+
+**首先 我們要確定節點可以安裝哪些服務 預設就全部節點都裝**
+```bash=
+kubectl label --overwrite nodes --all openstack-control-plane=enabled
+kubectl label --overwrite nodes --all openstack-compute-node=enabled
+kubectl label --overwrite nodes --all openvswitch=enabled
+kubectl label --overwrite nodes --all linuxbridge=enabled
+```
+
+**確定好後可以開始安裝設定openstack的資訊**
+
+```bash=
+export OPENSTACK_RELEASE=2024.1
+# Features enabled for the deployment. This is used to look up values overrides.
+export FEATURES="${OPENSTACK_RELEASE} ubuntu_jammy"
+# Directory where values overrides are looked up or downloaded to.
+export OVERRIDES_DIR=$(pwd)/overrides
+INFRA_OVERRIDES_URL=https://opendev.org/openstack/openstack-helm-infra/raw/branch/master
+for chart in rabbitmq mariadb memcached openvswitch libvirt; do
+    helm osh get-values-overrides -d -u ${INFRA_OVERRIDES_URL} -p ${OVERRIDES_DIR} -c ${chart} ${FEATURES}
+done
+
+OVERRIDES_URL=https://opendev.org/openstack/openstack-helm/raw/branch/master
+for chart in keystone heat glance cinder placement nova neutron horizon; do
+    helm osh get-values-overrides -d -u ${OVERRIDES_URL} -p ${OVERRIDES_DIR} -c ${chart} ${FEATURES}
+done
+
+git clone https://github.com/openstack/openstack-helm
+```
+**這樣應該可以看到osh的目錄底下有overrides的資料夾跟openstack_infra與openstack_helm的資料夾**
+**我們先將helm chart的資訊都安裝上去(不裝的話可能會噴錯)**
+
+```bash=
+cd ~/osh/openstack-helm-infra/ceph-adapter-rook
+helm dependency build 
+cd ~/osh/openstack-helm-infra/rabbitmq
+helm dependency build 
+cd ~/osh/openstack-helm-infra/mariadb
+helm dependency build
+cd ~/osh/openstack-helm-infra/memcached
+helm dependency build
+cd ~/osh/openstack-helm/keystone
+helm dependency build
+cd ~/osh/openstack-helm/heat
+helm dependency build
+cd ~/osh/openstack-helm/glance
+helm dependency build
+cd ~/osh/openstack-helm/cinder
+helm dependency build
+cd ~/osh/openstack-helm-infra/openvswitch
+helm dependency build
+cd ~/osh/openstack-helm-infra/libvirt
+helm dependency build
+cd ~/osh/openstack-helm/placement
+helm dependency build
+cd ~/osh/openstack-helm/nova
+helm dependency build
+cd ~/osh/openstack-helm/neutron
+helm dependency build
+cd ~/osh/openstack-helm/horizon
+helm dependency build
+```
+
+
 **安裝Openstack的元件**
 ---
 
