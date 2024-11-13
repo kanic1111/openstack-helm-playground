@@ -1,8 +1,3 @@
-mkdir ~/osh
-cd ~/osh
-git clone https://opendev.org/openstack/openstack-helm-infra.git
-git clone https://opendev.org/zuul/zuul-jobs.git
-pip install ansible
 export ANSIBLE_ROLES_PATH=~/osh/openstack-helm-infra/roles:~/osh/zuul-jobs/roles
 echo "please check if 8.8.8.8 is avaliable for you"
 sleep 2s
