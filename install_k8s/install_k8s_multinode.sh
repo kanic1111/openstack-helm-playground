@@ -1,10 +1,20 @@
 #!/bin/bash
 
 echo "please check if 8.8.8.8 is avaliable for you"
-sleep 1s
 echo "if not you has to edit the openstack-helm playbook: k8s_common.yaml,coredns_resolver.yaml,openstack_metallb_endpoint.yaml"
+sleep 1s
 read -p "Is system.resolved able to connect to DNS server 8.8.8.8 ? (y/n) " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
+    echo "using default playbook"
+elif [ "$answer" != "${answer#[Nn]}" ];then
+    echo "edit playbook"
+    cp ./install_k8s/custom_playbook/coredns_resolver.yaml ~/osh/openstack-helm-infra/playbooks/roles/deploy-env/tasks/coredns_resolver.yaml
+    cp ./install_k8s/custom_playbook/k8s_common.yaml ~/osh/openstack-helm-infra/playbooks/roles/deploy-env/tasks/k8s_common.yaml
+    cp ./install_k8s/custom_playbook/openstack_metallb_endpoint.yaml ~/osh/openstack-helm-infra/playbooks/roles/deploy-env/tasks/openstack_metallb_endpoint.yaml
+else
+    echo "do nothing"
+    exit 0
+fi
 echo "setup cluster information"
 read -p "enter primary ip: " primary_ip;
 read -p "enter k8s control ip: " k8s_control_ip;
@@ -83,7 +93,4 @@ cat > ~/osh/deploy-env.yaml <<EOF
     - deploy-env
 EOF
 cd ~/osh
-#ansible-playbook -i inventory.yaml deploy-env.yaml
-else
-echo "do nothing..."
-fi
+ansible-playbook -i inventory.yaml deploy-env.yaml
