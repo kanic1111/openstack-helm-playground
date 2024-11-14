@@ -91,6 +91,8 @@ helm upgrade --install nova openstack-helm/nova \
     --set bootstrap.wait_for_computes.enabled=true \
     --set conf.ceph.enabled=true \
     $(helm osh get-values-overrides -p ${OVERRIDES_DIR} -c nova ${FEATURES})
+
+read -p "enter enterface for neutron" PROVIDER_INTERFACE
 echo "setup neutron-interface: ${PROVIDER_INTERFACE}"
 tee ${OVERRIDES_DIR}/neutron/values_overrides/neutron_simple.yaml << EOF
 conf:

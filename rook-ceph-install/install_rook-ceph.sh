@@ -35,7 +35,7 @@ if [ "x${ID}" == "xcentos" ] || \
 else
   CRUSH_TUNABLES=null
 fi
-tee /tmp/rook.yaml <<EOF
+tee ./rook-ceph-install/rook.yaml <<EOF
 image:
   repository: rook/ceph
   tag: ${ROOK_RELEASE}
@@ -351,10 +351,10 @@ admissionController:
 EOF
 
 helm repo add rook-release https://charts.rook.io/release
-helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph --version ${ROOK_RELEASE} -f /tmp/rook.yaml
+helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph --version ${ROOK_RELEASE} -f ./rook-ceph-install/rook.yaml
 helm osh wait-for-pods rook-ceph
 
-tee /tmp/ceph.yaml <<EOF
+tee ./rook-ceph-install/ceph.yaml <<EOF
 operatorNamespace: rook-ceph
 clusterName: ceph
 kubeVersion:
@@ -636,7 +636,7 @@ cephObjectStores:
         region: us-east-1
 EOF
 
-helm upgrade --install --create-namespace --namespace ceph rook-ceph-cluster --set operatorNamespace=rook-ceph rook-release/rook-ceph-cluster --version ${ROOK_RELEASE} -f /tmp/ceph.yaml
+helm upgrade --install --create-namespace --namespace ceph rook-ceph-cluster --set operatorNamespace=rook-ceph rook-release/rook-ceph-cluster --version ${ROOK_RELEASE} -f ./rook-ceph-install/ceph.yaml
 
 #NOTE: Wait for deploy
 RGW_POD=$(kubectl get pods \
