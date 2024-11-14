@@ -1,6 +1,6 @@
 # openstack-helm-playground
 >[!Note]
->This document is base on [Openstack-helm offical installation guide](https://docs.openstack.org/openstack-helm/latest/install/index.html) with customization setting
+>This document is base on [Openstack-helm offical installation guide](https://docs.openstack.org/openstack-helm/latest/install/index.html) with customize setting
 
 ## Install kubernetes using Ansible and Openstack-helm playbook
 ```bash=
