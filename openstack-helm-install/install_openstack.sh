@@ -13,7 +13,7 @@ for chart in keystone heat glance cinder placement nova neutron horizon; do
     helm osh get-values-overrides -d -u ${OVERRIDES_URL} -p ${OVERRIDES_DIR} -c ${chart} ${FEATURES}
 done
 git clone https://github.com/openstack/openstack-helm
-./build_openstack-dependency.sh
+bash ./build_openstack-dependency.sh
 
 echo "labeling openstack node"
 kubectl label --overwrite nodes --all openstack-control-plane=enabled

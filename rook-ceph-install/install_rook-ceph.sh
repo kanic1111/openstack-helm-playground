@@ -18,9 +18,8 @@ set -xe
 # Specify the Rook release tag to use for the Rook operator here
 ROOK_RELEASE=v1.13.3
 
-: ${CEPH_OSD_DATA_DEVICE:="/dev/sdb"}
+: ${CEPH_OSD_DATA_DEVICE:="$1"}
 echo "ceph osd using device:  ${CEPH_OSD_DATA_DEVICE}"
-
 
 #NOTE: Deploy command
 : ${OSH_EXTRA_HELM_ARGS:=""}

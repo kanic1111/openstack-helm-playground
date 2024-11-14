@@ -1,15 +1,13 @@
-export ANSIBLE_ROLES_PATH=~/osh/openstack-helm-infra/roles:~/osh/zuul-jobs/roles
+#!/bin/bash
+
 echo "please check if 8.8.8.8 is avaliable for you"
-sleep 2s
+sleep 1s
 echo "if not you has to edit the openstack-helm playbook: k8s_common.yaml,coredns_resolver.yaml,openstack_metallb_endpoint.yaml"
 read -p "Is system.resolved able to connect to DNS server 8.8.8.8 ? (y/n) " answer
-
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-export primary_ip=<primary ip>
-export k8s-control_ip=<control ip>
-export k8s-worker1_ip=<worker1 ip>
-export k8s-worker2_ip=<worker2 ip>
-
+echo "setup cluster information"
+read -p "enter primary ip: " primary_ip;
+read -p "enter k8s control ip: " k8s_control_ip;
 cat > ~/osh/inventory.yaml <<EOF
 ---
 all:
@@ -51,10 +49,6 @@ all:
       hosts:
         node-1:
           ansible_host: $k8s_control_ip
-        node-2:
-          ansible_host: $k8s_worker1_ip
-        node-3:
-          ansible_host: $k8s_worker2_ip
     # The control plane node where the Kubernetes control plane components will be installed.
     # It must be the only node in the group k8s_control_plane.
     k8s_control_plane:
@@ -63,15 +57,9 @@ all:
           ansible_host: $k8s_control_ip
     # These are Kubernetes worker nodes. There could be zero such nodes.
     # In this case the Openstack workloads will be deployed on the control plane node.
-    k8s_nodes:
-      hosts:
-        node-2:
-          ansible_host: $k8s_worker1_ip
-        node-3:
-          ansible_host: $k8s_worker2_ip
 EOF
 
-cat > ~/osh/deploy-env.yaml <<EOF
+cat > ./osh/deploy-env.yaml <<EOF
 ---
 - hosts: all
   become: true
@@ -83,7 +71,7 @@ cat > ~/osh/deploy-env.yaml <<EOF
     - deploy-env
 EOF
 cd ~/osh
-ansible-playbook -i inventory.yaml deploy-env.yaml
+#ansible-playbook -i inventory.yaml deploy-env.yaml
 else
 echo "do nothing..."
 fi
