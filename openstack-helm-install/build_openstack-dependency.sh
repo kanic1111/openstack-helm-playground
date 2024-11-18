@@ -1,29 +1,30 @@
-cd ~/osh/openstack-helm-infra/ceph-adapter-rook
+
+cd $1/openstack-helm-infra/ceph-adapter-rook
 helm dependency build 
-cd ~/osh/openstack-helm-infra/rabbitmq
+cd $1/openstack-helm-infra/rabbitmq
 helm dependency build 
-cd ~/osh/openstack-helm-infra/mariadb
+cd $1/openstack-helm-infra/mariadb
 helm dependency build
-cd ~/osh/openstack-helm-infra/memcached
+cd $1/openstack-helm-infra/memcached
 helm dependency build
-cd ~/osh/openstack-helm/keystone
+cd $1/openstack-helm/keystone
 helm dependency build
-cd ~/osh/openstack-helm/heat
+cd $1/openstack-helm/heat
 helm dependency build
-cd ~/osh/openstack-helm/glance
+cd $1/openstack-helm/glance
 helm dependency build
-cd ~/osh/openstack-helm/cinder
+cd $1/openstack-helm/cinder
 helm dependency build
-cd ~/osh/openstack-helm-infra/openvswitch
+cd $1/openstack-helm-infra/openvswitch
 helm dependency build
-cd ~/osh/openstack-helm-infra/libvirt
+cd $1/openstack-helm-infra/libvirt
 helm dependency build
-cd ~/osh/openstack-helm/placement
+cd $1/openstack-helm/placement
 helm dependency build
-cd ~/osh/openstack-helm/nova
+cd $1/openstack-helm/nova
 helm dependency build
-cd ~/osh/openstack-helm/neutron
+cd $1/openstack-helm/neutron
 helm dependency build
-cd ~/osh/openstack-helm/horizon
+cd $1/openstack-helm/horizon
 helm dependency build
-cd ~/osh
+cd $1

@@ -3,6 +3,47 @@
 export OPENSTACK_RELEASE=2024.1
 export FEATURES="${OPENSTACK_RELEASE} ubuntu_jammy"
 export OVERRIDES_DIR=$(pwd)/overrides
+CHART_DIR=~/osh
+
+Help()
+{
+   # Display Help
+   echo "Option to use this script."
+   echo
+   echo "Usage: ./setup.sh --install-k8s singlenode"
+   echo "options:                                   description: "
+   echo "--override-dir (directory)                 location to put all override_value folder ."
+   echo "--version (version)                        Installed Openstack Version (default: 2024.1)"
+   echo "--chart-dir (directory)                    location of all chart directory for build purpose (default: ~/osh)"
+   echo
+}
+
+if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
+    Help; exit 1
+  else
+    while [[ $# -gt 0 ]]; do
+      opt="$1"
+      shift;
+      current_arg="$1"
+     if [[ "$current_arg" =~ ^-{1,2}.* ]] || [ -z "${current_arg}" ]; then
+        echo "WARNING: You may have left an argument blank. Double check your command."
+        Help
+        exit 0
+     fi
+      case "$opt" in
+        "--version"         ) export OPENSTACK_RELEASE="$1"; shift;;
+        "--override-dir"       ) export  OVERRIDES_DIR="$1"; shift;;
+        "--chart-dir"          ) CHART_DIR="$1"; shift;;
+        *                   ) Help
+                              echo "ERROR: Invalid option: \""$opt"\"" >&2
+                              exit 1;;
+      esac
+    done
+  fi
+
+
+
+
 INFRA_OVERRIDES_URL=https://opendev.org/openstack/openstack-helm-infra/raw/branch/master
 for chart in rabbitmq mariadb memcached openvswitch libvirt; do
     helm osh get-values-overrides -d -u ${INFRA_OVERRIDES_URL} -p ${OVERRIDES_DIR} -c ${chart} ${FEATURES}
@@ -12,10 +53,11 @@ OVERRIDES_URL=https://opendev.org/openstack/openstack-helm/raw/branch/master
 for chart in keystone heat glance cinder placement nova neutron horizon; do
     helm osh get-values-overrides -d -u ${OVERRIDES_URL} -p ${OVERRIDES_DIR} -c ${chart} ${FEATURES}
 done
-git clone https://github.com/openstack/openstack-helm
-bash ./build_openstack-dependency.sh
+git clone https://github.com/openstack/openstack-helm $CHART_DIR/openstack-helm
+bash ./openstack-helm-install/build_openstack-dependency.sh $CHART_DIR
 
 echo "labeling openstack node"
+
 kubectl label --overwrite nodes --all openstack-control-plane=enabled
 kubectl label --overwrite nodes --all openstack-compute-node=enabled
 kubectl label --overwrite nodes --all openvswitch=enabled

@@ -1,16 +1,61 @@
 #!/bin/bash
+
+Help()
+{
+   # Display Help
+   echo "Install K8s & Helm using Openstack-helm Playbook."
+   echo
+   echo "Example: ./install_k8s_singlenode.sh --dir folder --ssh-key keyfile "
+   echo "options:                                   description: "
+   echo "-D | --dir (directory)                     directory where Ansible-playbook stored(default: ~/osh) "
+   echo "-U | --user (user)                         User to install kubernetes "
+   echo "-K | --ssh-key (private-key)               ssh private key file (default: /home/ubuntu/.ssh/id_rsa)"
+   echo
+}
+
+
+if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
+    print_usage; exit 1
+  else
+    while [[ $# -gt 0 ]]; do
+      opt="$1"
+      shift;
+      current_arg="$1"
+     if [[ "$current_arg" =~ ^-{1,2}.* ]]; then
+        echo "WARNING: You may have left an argument blank. Double check your command."
+        Help
+        exit 0
+     fi
+      case "$opt" in
+        "-D"|"--dir"      ) DIR="$1"; shift;;
+        "-U"|"--user"      ) current_user="$1"; shift;;
+        "-K"|"--ssh-key"   ) KEY="$1"; shift;;
+        *                   ) Help
+                              echo "ERROR: Invalid option: \""$opt"\"" >&2
+                              exit 1;;
+      esac
+    done
+  fi
+
+if [ -z "${current_user}" ];
+then
 current_user=$USER
+fi
+
 echo "please check if 8.8.8.8 is avaliable for you"
 echo "if not you has to edit the openstack-helm playbook: k8s_common.yaml,coredns_resolver.yaml,openstack_metallb_endpoint.yaml"
 sleep 1s
+echo "installing directory: $DIR"
+echo "Using ssh key : $KEY"
+#exit 0
 read -p "Is system.resolved able to connect to DNS server 8.8.8.8 ? (y/n) " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "using default playbook"
 elif [ "$answer" != "${answer#[Nn]}" ];then
     echo "edit playbook"
-    cp ./install_k8s/custom_playbook/coredns_resolver.yaml ~/osh/openstack-helm-infra/playbooks/roles/deploy-env/tasks/coredns_resolver.yaml
-    cp ./install_k8s/custom_playbook/k8s_common.yaml ~/osh/openstack-helm-infra/playbooks/roles/deploy-env/tasks/k8s_common.yaml
-    cp ./install_k8s/custom_playbook/openstack_metallb_endpoint.yaml ~/osh/openstack-helm-infra/playbooks/roles/deploy-env/tasks/openstack_metallb_endpoint.yaml
+    cp ./install_k8s/custom_playbook/coredns_resolver.yaml $DIR/openstack-helm-infra/playbooks/roles/deploy-env/tasks/coredns_resolver.yaml
+    cp ./install_k8s/custom_playbook/k8s_common.yaml $DIR/openstack-helm-infra/playbooks/roles/deploy-env/tasks/k8s_common.yaml
+    cp ./install_k8s/custom_playbook/openstack_metallb_endpoint.yaml $DIR/openstack-helm-infra/playbooks/roles/deploy-env/tasks/openstack_metallb_endpoint.yaml
 else
     echo "do nothing"
     exit 0
@@ -18,15 +63,13 @@ fi
 echo "setup cluster information"
 read -p "enter primary ip: " primary_ip;
 read -p "enter k8s control ip: " k8s_control_ip;
-read -p "enter k8s worker1 ip: " k8s_worker1_ip;
-read -p "enter k8s worker2 ip: " k8s_worker2_ip;
-cat > ~/osh/inventory.yaml <<EOF
+cat > $DIR/inventory.yaml <<EOF
 ---
 all:
   vars:
     ansible_port: 22
     ansible_user: $current_user
-    ansible_ssh_private_key_file: /home/ubuntu/.ssh/id_rsa
+    ansible_ssh_private_key_file: $KEY
     ansible_ssh_extra_args: -o StrictHostKeyChecking=no
     client_ssh_user: $current_user
     cluster_ssh_user: $current_user
@@ -71,7 +114,7 @@ all:
     # In this case the Openstack workloads will be deployed on the control plane node.
 EOF
 
-cat > ~/osh/deploy-env.yaml <<EOF
+cat > $DIR/deploy-env.yaml <<EOF
 ---
 - hosts: all
   become: true
@@ -82,5 +125,5 @@ cat > ~/osh/deploy-env.yaml <<EOF
     - clear-firewall
     - deploy-env
 EOF
-cd ~/osh
+cd $DIR
 ansible-playbook -i inventory.yaml deploy-env.yaml

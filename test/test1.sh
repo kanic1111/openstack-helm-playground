@@ -52,7 +52,6 @@ if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
 echo "Ceph using device $DEVICE"
 echo "Still on testing $DIR"
 
-#install Ansible and Playbook
 script_folder=$PWD
 mkdir $DIR
 git clone https://opendev.org/openstack/openstack-helm-infra.git $DIR/openstack-helm-infra
@@ -61,7 +60,6 @@ pip install ansible
 export ANSIBLE_ROLES_PATH=$DIR/openstack-helm-infra/roles:$DIR/osh/zuul-jobs/roles
 echo $ANSIBLE_ROLES_PATH
 
-#execute Script to auto create and run playbook
 if [ "$MODE" == "multinode" ] ;then
     echo "install k8s multi_node"
     bash ./install_k8s/install_k8s_multinode.sh -D $DIR -K $KEYFILE
@@ -73,31 +71,20 @@ else
     Help
     exit 0
 fi
-sleep 1s
+sleep 2s
 
-#install cephcluster
 cd $script_folder
 read -p "install rook-ceph?(y/n): " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-    if [ "$MODE" == "multinode" ] ;then
-        echo "execute rook-ceph script(this may take up to 15mins)"
-        echo "ceph will use device: $DEVICE"
-        bash rook-ceph-install/install_rook-ceph.sh $DEVICE
-        echo "ceph installation complete"
-    elif [ "$MODE" == "singlenode" ] ;then
-        echo "singlenode only deploy 1 OSD"
-        echo "ceph will use device: $DEVICE"
-        bash rook-ceph-install/install_rook-ceph_singlenode.sh $DEVICE
-        echo "ceph installaton complete"
-    else
-        echo "please set the installation mode "
-        exit 1
+    echo "execute rook-ceph script(this may take up to 15mins)"
+    echo "ceph will use device: $DEVICE"
+    bash rook-ceph-install/install_rook-ceph.sh $DEVICE
+    echo "ceph installation complete"
 else
-    echo "Ceph installation canceled"
+    echo "installation canceled"
 fi
-sleep 1s
-
-#install openstack
+sleep 2s
+#exit 0
 cd $script_folder
 read -p "install openstack?(y/n): " answer 
 if [ "$answer" != "${answer#[Yy]}" ] ;then
