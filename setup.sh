@@ -14,10 +14,20 @@ Help()
    # Display Help
    echo "Option to use this script."
    echo
-   echo "Usage: ./setup.sh --install-k8s singlenode"
+   echo "To install Singlenode Cluster use:"
+   echo "./setup.sh --install-k8s singlenode"
+   echo
+   echo "To install multinode Cluster use:"
+   echo "./setup.sh --install-k8s multinode"
+   echo
+   echo "Use custom install directory and openstack version use"
+   echo "./setup.sh --install-k8s singlenode --version 2023.2 --install-dir=/home/ubuntu/custom_folder"
+   echo
+   echo "you can found Openstack release Version in Offical site: https://github.com/openstack/openstack-helm"
+   echo 
    echo "options:                                   description: "
    echo "--device                                   Choose Ceph OSD Device(default: /dev/sdb)"
-   echo "--install-k8s (SingleNode,MultiNode)       install kubernetes ."
+   echo "--install-k8s (singleNode,multiNode)       install kubernetes ."
    echo "--version (version)                        installed Openstack Version(default: 2024.1)"
    echo "--install-dir (directory)                  choose install directory (default: ~/osh)"
    echo "--ssh-key (private-key)                    ssh private key file (default: /home/ubuntu/.ssh/id_rsa)"
@@ -25,6 +35,7 @@ Help()
 }
 
 if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
+    echo "Please enter k8s install mode"
     Help; exit 1
   else
     while [[ $# -gt 0 ]]; do

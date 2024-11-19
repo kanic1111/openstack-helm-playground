@@ -12,6 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 echo "please don't use this on single node kubernetes"
+if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
+    echo "Please Enter Ceph OSD Device"
+    echo "Usage: ./install_rook-ceph_singlenode.sh /dev/sdb"; exit 1
+fi
 
 set -xe
 
@@ -20,6 +24,7 @@ ROOK_RELEASE=v1.13.3
 
 : ${CEPH_OSD_DATA_DEVICE:="$1"}
 echo "ceph osd using device:  ${CEPH_OSD_DATA_DEVICE}"
+
 
 #NOTE: Deploy command
 : ${OSH_EXTRA_HELM_ARGS:=""}

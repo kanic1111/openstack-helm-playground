@@ -1,5 +1,9 @@
 #!/bin/bash
 
+DIR=~/osh;
+current_user=$USER
+KEY=/home/ubuntu/.ssh/id_rsa
+
 Help()
 {
    # Display Help
@@ -15,7 +19,10 @@ Help()
 
 
 if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
-    print_usage; exit 1
+    DIR=~/osh;
+    current_user=$USER
+    KEY=/home/ubuntu/.ssh/id_rsa
+    #exit 1
   else
     while [[ $# -gt 0 ]]; do
       opt="$1"
@@ -37,17 +44,12 @@ if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
     done
   fi
 
-if [ -z "${current_user}" ];
-then
-current_user=$USER
-fi
-
 echo "please check if 8.8.8.8 is avaliable for you"
 echo "if not you has to edit the openstack-helm playbook: k8s_common.yaml,coredns_resolver.yaml,openstack_metallb_endpoint.yaml"
 sleep 1s
 echo "installing directory: $DIR"
 echo "Using ssh key : $KEY"
-#exit 0
+
 read -p "Is system.resolved able to connect to DNS server 8.8.8.8 ? (y/n) " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "using default playbook"

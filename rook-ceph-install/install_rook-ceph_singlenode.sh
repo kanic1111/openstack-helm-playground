@@ -12,6 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
+    echo "Please Enter Ceph OSD Device"
+    echo "Usage: ./install_rook-ceph_singlenode.sh /dev/sdb"; exit 1
+fi
+
 set -xe
 
 # Specify the Rook release tag to use for the Rook operator here
@@ -346,7 +351,7 @@ discoverDaemonUdev:
 imagePullSecrets:
 enableOBCWatchOperatorNamespace: true
 admissionController:
-EOF
+wEOF
 
 helm repo add rook-release https://charts.rook.io/release
 helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph --version ${ROOK_RELEASE} -f /tmp/rook.yaml

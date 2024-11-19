@@ -1,5 +1,9 @@
 #!/bin/bash
 
+DIR=~/osh;
+current_user=$USER
+KEY=/home/ubuntu/.ssh/id_rsa
+
 Help()
 {
    # Display Help
@@ -13,9 +17,11 @@ Help()
    echo
 }
 
-
 if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
-    print_usage; exit 1
+    DIR=~/osh
+    current_user=$USER
+    KEY=/home/ubuntu/.ssh/id_rsa;
+    #exit 1
   else
     while [[ $# -gt 0 ]]; do
       opt="$1"
@@ -37,11 +43,6 @@ if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
     done
   fi
 
-if [ -z "${current_user}" ];
-then
-current_user=$USER
-fi
-
 echo "please check if 8.8.8.8 is avaliable for you"
 echo "if not you has to edit the openstack-helm playbook: k8s_common.yaml,coredns_resolver.yaml,openstack_metallb_endpoint.yaml"
 sleep 1s
@@ -60,11 +61,51 @@ else
     echo "do nothing"
     exit 0
 fi
+
 echo "setup cluster information"
-read -p "enter primary ip: " primary_ip;
-read -p "enter k8s control ip: " k8s_control_ip;
-read -p "enter k8s worker1 ip: " k8s_worker1_ip;
-read -p "enter k8s worker2 ip: " k8s_worker2_ip;
+read -p "Please enter host ip to install kubectl&Helm: " primary_ip;
+read -p "Enter k8s control node number: " k8s_control_num;
+read -p "Enter k8s worker node number: " k8s_worker_num;
+k8s_control=""
+k8s_cluster=""
+k8s_worker=""
+
+for i in $(seq 1 $k8s_control_num);
+do
+    read -p "enter k8s control node Ip: " k8s_control_ip;
+    k8s_control+=$(cat << EOF
+
+        node-$i:
+          ansible_host: $k8s_control_ip
+EOF
+)
+    k8s_cluster=$k8s_control
+done
+
+
+for w in $(seq 1 $k8s_worker_num);
+do
+    i=$((i+1))
+    read -p "enter k8s worker node Ip: " k8s_worker_ip;
+    k8s_worker+=$(cat << EOF
+
+        node-$w:
+          ansible_host: $k8s_worker_ip
+EOF
+)
+    k8s_cluster+=$(cat << EOF
+
+        node-$i:
+          ansible_host: $k8s_worker_ip
+EOF
+)
+
+done
+
+k8s_control=${k8s_control#*$'\n'}
+k8s_worker=${k8s_worker#*$'\n'}
+k8s_cluster=${k8s_cluster#*$'\n'}
+
 cat > $DIR/inventory.yaml <<EOF
 ---
 all:
@@ -104,22 +145,17 @@ all:
     # The nodes where the Kubernetes components will be installed.
     k8s_cluster:
       hosts:
-        node-1:
-          ansible_host: $k8s_control_ip
+$k8s_cluster
     # The control plane node where the Kubernetes control plane components will be installed.
     # It must be the only node in the group k8s_control_plane.
     k8s_control_plane:
       hosts:
-        node-1:
-          ansible_host: $k8s_control_ip
+$k8s_control
     # These are Kubernetes worker nodes. There could be zero such nodes.
     # In this case the Openstack workloads will be deployed on the control plane node.
     k8s_nodes:
       hosts:
-        node-2:
-          ansible_host: $k8s_worker1_ip
-        node-3:
-          ansible_host: $k8s_worker2_ip
+$k8s_worker
 EOF
 
 cat > $DIR/deploy-env.yaml <<EOF

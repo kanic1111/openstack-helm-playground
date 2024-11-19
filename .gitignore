@@ -1,0 +1,3 @@
+# Don't push any Test script
+test*
+test/
