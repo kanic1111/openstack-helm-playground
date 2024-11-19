@@ -69,8 +69,8 @@ mkdir $DIR
 git clone https://opendev.org/openstack/openstack-helm-infra.git $DIR/openstack-helm-infra
 git clone https://opendev.org/zuul/zuul-jobs.git $DIR/zuul-jobs
 pip install ansible
-export ANSIBLE_ROLES_PATH=$DIR/openstack-helm-infra/roles:$DIR/osh/zuul-jobs/roles
-echo $ANSIBLE_ROLES_PATH
+export ANSIBLE_ROLES_PATH=$DIR/openstack-helm-infra/roles:$DIR/zuul-jobs/roles
+echo "Ansible Role Path Using: $ANSIBLE_ROLES_PATH"
 
 #execute Script to auto create and run playbook
 if [ "$MODE" == "multinode" ] ;then
@@ -103,11 +103,12 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
     else
         echo "please set the installation mode "
         exit 1
+    fi
 else
     echo "Ceph installation canceled"
 fi
 sleep 1s
-
+exit 1
 #install openstack
 cd $script_folder
 read -p "install openstack?(y/n): " answer 

@@ -127,5 +127,4 @@ cat > $DIR/deploy-env.yaml <<EOF
     - clear-firewall
     - deploy-env
 EOF
-cd $DIR
-ansible-playbook -i inventory.yaml deploy-env.yaml
+ansible-playbook -i $DIR/inventory.yaml $DIR/deploy-env.yaml
