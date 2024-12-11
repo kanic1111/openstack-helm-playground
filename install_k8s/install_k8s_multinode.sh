@@ -18,9 +18,13 @@ Help()
 }
 
 if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
-    DIR=~/osh
-    current_user=$USER
-    KEY=/home/ubuntu/.ssh/id_rsa;
+    echo "Not Parameter detect:"
+    echo "use dir: $DIR to install openstack"
+    echo "use ansible_user: $USER"
+    echo "use ssh_key: $KEY"
+    #DIR=~/osh
+    #current_user=$USER
+    #KEY=/home/ubuntu/.ssh/id_rsa;
     #exit 1
   else
     while [[ $# -gt 0 ]]; do
@@ -46,9 +50,9 @@ if [[ "$1" =~ ^((-{1,2})([Hh]$|[Hh][Ee][Ll][Pp])|)$ ]]; then
 echo "please check if 8.8.8.8 is avaliable for you"
 echo "if not you has to edit the openstack-helm playbook: k8s_common.yaml,coredns_resolver.yaml,openstack_metallb_endpoint.yaml"
 sleep 1s
-echo "installing directory: $DIR"
-echo "Using ssh key : $KEY"
-#exit 0
+echo "use dir: $DIR to install openstack"
+echo "use ansible_user: $USER"
+echo "use ssh_key: $KEY"
 read -p "Is system.resolved able to connect to DNS server 8.8.8.8 ? (y/n) " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "using default playbook"
@@ -89,7 +93,7 @@ do
     read -p "enter k8s worker node Ip: " k8s_worker_ip;
     k8s_worker+=$(cat << EOF
 
-        node-$w:
+        node-$i:
           ansible_host: $k8s_worker_ip
 EOF
 )
@@ -169,5 +173,6 @@ cat > $DIR/deploy-env.yaml <<EOF
     - clear-firewall
     - deploy-env
 EOF
+
 
 ansible-playbook -i $DIR/inventory.yaml $DIR/deploy-env.yaml

@@ -10,7 +10,7 @@ Help()
    # Display Help
    echo "Option to use this script."
    echo
-   echo "Usage: ./setup.sh --install-k8s singlenode"
+   echo "Usage: ./setup.sh --override-dir ~/osh/overrides"
    echo "options:                                   description: "
    echo "--override-dir (directory)                 location to put all override_value folder ."
    echo "--version (version)                        Installed Openstack Version (default: 2024.1)"
